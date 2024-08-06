@@ -31,13 +31,18 @@ pipeline{
                 }  
             }
         }
-		stage('Docker Push') {
-      agent any
-      steps {
-        withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
-          sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
-          sh 'docker push Ramak120/spring-petclinic:latest'
+        stage('Docker Build') {
+            steps {
+                sh 'docker build -t naimishdev/spring-petclinic:latest .'
+            }
         }
-      }
+        stage('Docker Push') {
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'dockerHubPassword', usernameVariable: 'dockerHubUser')]) {
+                    sh "docker login -u ${env.dockerHubUser} -p ${env.dockerHubPassword}"
+                    sh 'docker push naimishdev/spring-petclinic:latest'
+                }
+            }
+        }
 }
 }
