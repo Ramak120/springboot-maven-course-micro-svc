@@ -1,34 +1,32 @@
-pipeline{
+pipeline {
     agent any
-    tools{
+    tools {
         maven 'maven'
     }
-    stages{
-        stage('checkout the code'){
-            steps{
-                git url:'https://github.com/Ramak120/springboot-maven-course-micro-svc.git', branch: 'master'
+    stages {
+        stage('Checkout the Code') {
+            steps {
+                git url: 'https://github.com/Ramak120/springboot-maven-course-micro-svc.git', branch: 'master'
             }
         }
-        stage('build the code'){
-            steps{
+        stage('Build the Code') {
+            steps {
                 sh 'mvn clean package'
             }
         }
-        stage("sonar quality check"){
-            steps{
-                script{
-                    withSonarQubeEnv(installationName: 'sonarqube', credentialsId: 'sonarqube') {
-                            sh 'mvn sonar:sonar '
+        stage('Sonar Quality Check') {
+            steps {
+                script {
+                    withSonarQubeEnv('sonarqube') {
+                        sh 'mvn sonar:sonar'
                     }
-
                     timeout(time: 1, unit: 'HOURS') {
-                      def qg = waitForQualityGate()
-                      if (qg.status != 'OK') {
-                           error "Pipeline aborted due to quality gate failure: ${qg.status}"
-                      }
+                        def qg = waitForQualityGate()
+                        if (qg.status != 'OK') {
+                            error "Pipeline aborted due to quality gate failure: ${qg.status}"
+                        }
                     }
-
-                }  
+                }
             }
         }
         stage('Docker Build') {
@@ -44,5 +42,5 @@ pipeline{
                 }
             }
         }
-}
+    }
 }
